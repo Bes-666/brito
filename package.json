@@ -30,5 +30,18 @@
   "devDependencies": {
     "eslint": "^9",
     "eslint-config-next": "16.0.1"
+  },
+  "overrides": {
+    "glob": "^10.3.10",
+    "rimraf": "^5.0.5",
+    "sourcemap-codec": "npm:@jridgewell/sourcemap-codec@^1.4.15",
+    "clean-webpack-plugin": {
+      "glob": "^10.3.10",
+      "rimraf": "^5.0.5"
+    },
+    "workbox-webpack-plugin": {
+      "glob": "^10.3.10",
+      "sourcemap-codec": "npm:@jridgewell/sourcemap-codec@^1.4.15"
+    }
   }
 }
