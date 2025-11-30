@@ -53,7 +53,13 @@ export default async function ServiceCatalogPage({ params }: { params: Promise<{
   // Normalize URL parameters to match stored data format
   const brand = normalizeUrlParam(rawParams.brand);
   const model = normalizeUrlParam(rawParams.model);
-  const year = rawParams.year.trim(); // Year can contain hyphens, so we keep it as is but trim
+  // Decode year from URL (e.g., "2021%2B" -> "2021+") and trim
+  let year: string;
+  try {
+    year = decodeURIComponent(rawParams.year).trim();
+  } catch {
+    year = rawParams.year.trim();
+  }
   
   const servicesData = await getServices();
   
@@ -88,31 +94,36 @@ export default async function ServiceCatalogPage({ params }: { params: Promise<{
       
       // Check all years for this model (year might be stored differently)
       if (modelData && typeof modelData === 'object') {
-        // Try exact year match first
+        const normalizedRequestedYear = year.trim();
         let yearData = modelData[year];
         
         // If not found, try trimmed year
         if (!yearData && year.trim() !== year) {
-          yearData = modelData[year.trim()];
+          yearData = modelData[normalizedRequestedYear];
         }
         
-        // If still not found, try to find any year that contains the requested year or vice versa
+        // If still not found, iterate through all stored years and try different matching strategies
         if (!yearData) {
           for (const storedYear in modelData) {
-            const trimmedStoredYear = storedYear.trim();
-            const trimmedRequestedYear = year.trim();
+            if (!storedYear) continue;
             
-            // Exact match (after trimming)
-            if (trimmedStoredYear === trimmedRequestedYear) {
+            const trimmedStoredYear = storedYear.trim();
+            
+            // Try exact match with trimmed values first
+            if (trimmedStoredYear === normalizedRequestedYear) {
               yearData = modelData[storedYear];
               break;
             }
             
-            // Partial match - check if one contains the other
-            if (trimmedStoredYear.includes(trimmedRequestedYear) || 
-                trimmedRequestedYear.includes(trimmedStoredYear)) {
-              yearData = modelData[storedYear];
-              break;
+            // Try decoding stored year if it might be URL-encoded
+            try {
+              const decodedStoredYear = decodeURIComponent(storedYear).trim();
+              if (decodedStoredYear === normalizedRequestedYear) {
+                yearData = modelData[storedYear];
+                break;
+              }
+            } catch {
+              // If decoding fails, continue to next year
             }
           }
         }

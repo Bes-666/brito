@@ -99,23 +99,27 @@ const VehicleCard = ({ vehicle }: { vehicle: Vehicle }) => {
       {/* Year Dropdown */}
       {hasMultipleYears && showYearDropdown && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[var(--space-black)] border border-[var(--border-color)] rounded-lg shadow-lg z-10 overflow-hidden">
-          {vehicle.years.map((year, index) => (
-            <Link
-              key={index}
-              href={`/services/${normalizedBrand}/${normalizedModel}/${year.value}`}
-              className="block px-4 py-3 text-[var(--foreground)] hover:bg-[var(--accent-gold)]/10 hover:text-[var(--accent-gold)] transition-colors text-sm font-medium"
-              onClick={() => setShowYearDropdown(false)}
-            >
-              {year.label}
-            </Link>
-          ))}
+          {vehicle.years.map((year, index) => {
+            // Encode year value for URL (e.g., "2021+" -> "2021%2B")
+            const encodedYear = encodeURIComponent(year.value);
+            return (
+              <Link
+                key={index}
+                href={`/services/${normalizedBrand}/${normalizedModel}/${encodedYear}`}
+                className="block px-4 py-3 text-[var(--foreground)] hover:bg-[var(--accent-gold)]/10 hover:text-[var(--accent-gold)] transition-colors text-sm font-medium"
+                onClick={() => setShowYearDropdown(false)}
+              >
+                {year.label}
+              </Link>
+            );
+          })}
         </div>
       )}
 
       {/* Direct link for single year */}
       {!hasMultipleYears && vehicle.years[0] && (
         <Link
-          href={`/services/${normalizedBrand}/${normalizedModel}/${vehicle.years[0].value}`}
+          href={`/services/${normalizedBrand}/${normalizedModel}/${encodeURIComponent(vehicle.years[0].value)}`}
           className="absolute inset-0"
           aria-label={`Go to services for ${vehicle.title}`}
         />

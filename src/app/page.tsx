@@ -114,7 +114,9 @@ function VehicleSelector() {
       };
       const normalizedBrand = normalizeForUrl(selectedBrand);
       const normalizedModel = normalizeForUrl(selectedModel);
-      router.push(`/services/${normalizedBrand}/${normalizedModel}/${selectedYear}`);
+      // Encode year for URL (e.g., "2021+" -> "2021%2B")
+      const encodedYear = encodeURIComponent(selectedYear);
+      router.push(`/services/${normalizedBrand}/${normalizedModel}/${encodedYear}`);
     }
   };
 
